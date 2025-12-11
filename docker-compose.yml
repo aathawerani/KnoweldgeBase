@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:15
+    container_name: wikijs_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_USER: wiki
+      POSTGRES_PASSWORD: wikijs_pass123
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  wikijs:
+    image: requarks/wiki:latest
+    container_name: wikijs_app
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: wiki
+      DB_PASS: wikijs_pass123
+      DB_NAME: wiki
+    ports:
+      - "3000:3000"
+    volumes:
+      - wiki_data:/wiki/data
+
+volumes:
+  db_data:
+  wiki_data:
