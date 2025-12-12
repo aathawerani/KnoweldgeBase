@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   bookstack:
-    image: linuxserver/bookstack:latest
+    image: lscr.io/linuxserver/bookstack:latest
     container_name: bookstack
     environment:
       - PUID=1000
@@ -12,6 +12,7 @@ services:
       - DB_USER=bookstack
       - DB_PASS=secretpassword
       - DB_DATABASE=bookstackapp
+      - APP_KEY=base64:rQPfr2DyP5c+svc53NHy9RMdE67+RL3DJ37QAXE/rLQ=
     volumes:
       - bookstack_data:/config
     ports:
