@@ -1,19 +1,49 @@
-version: "3.3"
-
 services:
-  tuleap:
-    image: enalean/tuleap-aio
-    container_name: tuleap
-    restart: always
-    ports:
-      - "8080:80"
-      - "8443:443"
+  tuleap-db:
+    image: mariadb:10.5
+    environment:
+      MYSQL_ROOT_PASSWORD: tuleap
+      MYSQL_DATABASE: tuleap
+      MYSQL_USER: tuleap
+      MYSQL_PASSWORD: tuleap
     volumes:
-      - tuleap-data:/data
+      - tuleap-db:/var/lib/mysql
+
+  tuleap-redis:
+    image: redis:alpine
+
+  tuleap-app:
+    image: tuleap/tuleap-community-edition:latest
+    environment:
+      DB_HOST: tuleap-db
+      DB_USER: tuleap
+      DB_PASSWORD: tuleap
+      DB_NAME: tuleap
+      REDIS_HOST: tuleap-redis
+      SITE_URL: http://localhost:8080
+      TULEAP_SYS_DEFAULT_LANGUAGE: en_US
+      TULEAP_SYS_ENABLE_HTTPS_REDIRECT: "false"
+    depends_on:
+      - tuleap-db
+      - tuleap-redis
+    volumes:
+      - tuleap-data:/var/lib/tuleap
       - tuleap-conf:/etc/tuleap
       - tuleap-log:/var/log/tuleap
 
+  tuleap-nginx:
+    image: tuleap/tuleap-nginx:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - tuleap-app
+    volumes:
+      - tuleap-conf:/etc/tuleap
+      - tuleap-data:/var/lib/tuleap
+      - tuleap-log:/var/log/tuleap
+
 volumes:
+  tuleap-db:
   tuleap-data:
   tuleap-conf:
   tuleap-log:
